@@ -8,7 +8,7 @@ class Teacher(models.Model):
 class Student(models.Model):
     name = models.CharField(max_length=100)
     email_address = models.EmailField()
-    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE)
+    teacher = models.ForeignKey('Teacher', on_delete=models.CASCADE, null=True)
     
 class Classroom(models.Model):
     name = models.CharField(max_length=100)

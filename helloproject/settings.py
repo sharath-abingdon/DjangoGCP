@@ -17,6 +17,12 @@ import pg8000
 
 import sqlalchemy
 import dj_database_url
+import os
+import io
+from google.cloud import secretmanager
+import google.auth
+from google.auth.exceptions import DefaultCredentialsError
+from environ import environ
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -37,10 +43,10 @@ DEBUG = True
 # SECURITY WARNING: It's recommended that you use this when
 # running in production. The URL will be known once you first deploy
 # to Cloud Run. This code takes the URL and converts it to both these settings formats.
-CLOUDRUN_SERVICE_URL = "https://hello-world-1-3sdn5y3j6a-uc.a.run.app"
+CLOUDRUN_SERVICE_URL = "https://hello-world-1-vjgdityaia-nw.a.run.app"
 if CLOUDRUN_SERVICE_URL:
-    ALLOWED_HOSTS = [urlparse(CLOUDRUN_SERVICE_URL).netloc]
-    CSRF_TRUSTED_ORIGINS = [CLOUDRUN_SERVICE_URL]
+    ALLOWED_HOSTS = [urlparse(CLOUDRUN_SERVICE_URL).netloc, urlparse('https://abingdondjango.web.app').netloc]
+    CSRF_TRUSTED_ORIGINS = [CLOUDRUN_SERVICE_URL, 'https://abingdondjango.web.app']
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 else:
@@ -109,6 +115,36 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# SECURITY WARNING: don't run with debug turned on in production!
+# Change this to "False" when you are ready for production
+env = environ.Env(DEBUG=(bool, True))
+# env_file = os.path.join(BASE_DIR, ".env")
+
+# Attempt to load the Project ID into the environment, safely failing on error.
+try:
+    _, os.environ["GOOGLE_CLOUD_PROJECT"] = google.auth.default()
+except google.auth.exceptions.DefaultCredentialsError:
+    pass
+
+# if os.path.isfile(env_file):
+#     # Use a local secret file, if provided
+
+#     #env.read_env(env_file)
+#     pass
+# ...
+if os.environ.get("GOOGLE_CLOUD_PROJECT", None):
+    # Pull secrets from Secret Manager
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+
+    client = secretmanager.SecretManagerServiceClient()
+    settings_name = os.environ.get("SETTINGS_NAME", "django_settings")
+    name = f"projects/{project_id}/secrets/{settings_name}/versions/latest"
+    payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
+
+    env.read_env(io.StringIO(payload))
+else:
+    raise Exception("No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
+
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -122,6 +158,7 @@ STATIC_URL = '/static/'
 #         'NAME': 'testmaindb',
 #     }
 # }
+
 DATABASES = {
     'default': {
         # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -132,7 +169,8 @@ DATABASES = {
         'PORT': '5432',
         'USER': 'admin',
         'PASSWORD': 'Admin123',
-        'NAME': 'testmaindb',
-        'SSLMODE': 'require'
+        # 'NAME': 'testmaindb',
+        'NAME': env("DATABASE_NAME"),
+        # 'SSLMODE': 'require'
     }
 }

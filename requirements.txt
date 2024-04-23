@@ -5,4 +5,6 @@ cloud-sql-python-connector==1.8.0
 pg8000
 SQLAlchemy
 dj-database-url
+django-environ
+google-cloud-secret-manager
 debugpy # Required for debugging.

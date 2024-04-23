@@ -17,4 +17,4 @@ COPY . .
 # ENTRYPOINT ["python", "manage.py", "runserver", "--noreload"]
 
 # Run migrations and then start the server
-CMD python manage.py runserver --noreload
+CMD python manage.py migrate && python manage.py runserver --noreload
