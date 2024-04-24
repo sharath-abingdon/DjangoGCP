@@ -45,8 +45,8 @@ DEBUG = True
 # to Cloud Run. This code takes the URL and converts it to both these settings formats.
 CLOUDRUN_SERVICE_URL = "https://hello-world-1-vjgdityaia-nw.a.run.app"
 if CLOUDRUN_SERVICE_URL:
-    ALLOWED_HOSTS = [urlparse(CLOUDRUN_SERVICE_URL).netloc, urlparse('https://abingdondjango.web.app').netloc]
-    CSRF_TRUSTED_ORIGINS = [CLOUDRUN_SERVICE_URL, 'https://abingdondjango.web.app']
+    ALLOWED_HOSTS = [urlparse(CLOUDRUN_SERVICE_URL).netloc, urlparse('https://abx.abingdon.io').netloc]
+    CSRF_TRUSTED_ORIGINS = [CLOUDRUN_SERVICE_URL, 'https://abx.abingdon.io']
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 else:
