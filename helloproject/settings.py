@@ -143,7 +143,7 @@ if os.environ.get("GOOGLE_CLOUD_PROJECT", None):
 
     env.read_env(io.StringIO(payload))
 else:
-    raise Exception("No local .env or GOOGLE_CLOUD_PROJECT detected. No secrets found.")
+    raise Exception("No local .env or GOOGLE_CLOUD_PROJECT detected. No secretss found.")
 
 # DATABASES = {
 #     'default': {
